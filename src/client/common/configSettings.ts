@@ -497,7 +497,22 @@ export class PythonSettings implements IPythonSettings {
                   optOutFrom: [],
               };
 
-        this.tensorBoard = pythonSettings.get<ITensorBoardSettings>('tensorBoard');
+        // Resolve variables in tensorBoard.logDirectory and get absolute path
+        const tensorBoardSettings = systemVariables.resolveAny(pythonSettings.get<ITensorBoardSettings>('tensorBoard'))!;
+        if (this.tensorBoard) {
+            Object.assign<ITensorBoardSettings, ITensorBoardSettings>(this.tensorBoard, tensorBoardSettings);
+        } else {
+            this.tensorBoard = tensorBoardSettings;
+        }
+        this.tensorBoard = this.tensorBoard
+        ? this.tensorBoard
+        : {
+            logDirectory: ''
+          };
+        // getAbsolutePath function cannot handle folder paths such as "runs", "." and "/" separator in Windows
+        // Fully resolved before passing into a Python script
+        const logDirectory = systemVariables.resolveAny(this.tensorBoard.logDirectory)
+        this.tensorBoard.logDirectory = logDirectory ? getFullAbsolutePath(logDirectory, workspaceRoot) : logDirectory
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -648,4 +663,16 @@ function isValidPythonPath(pythonPath: string): boolean {
         fs.existsSync(pythonPath) &&
         path.basename(getOSType() === OSType.Windows ? pythonPath.toLowerCase() : pythonPath).startsWith('python')
     );
+}
+
+/**
+ * Get the full absolute path, different from getAbsolutePath, for example:
+ * - "runs" -> "/rootDir/runs", "D:\\rootDir\\runs"
+ * - "" or "." -> "/rootDir", "D:\\rootDir"
+ * - "/runs" -> "/runs", "D:\\runs"
+*/
+function getFullAbsolutePath(pathToCheck: string, rootDir: string | undefined): string {
+    pathToCheck = untildify(pathToCheck) as string;
+    pathToCheck = rootDir ? path.resolve(rootDir, pathToCheck) : path.resolve(pathToCheck);
+    return pathToCheck;
 }
