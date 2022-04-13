@@ -1,6 +1,6 @@
 {
     "name": "python",
-    "displayName": "Python",
+    "displayName": "Python (Patch by Zhang)",
     "description": "IntelliSense (Pylance), Linting, Debugging (multi-threaded, remote), Jupyter Notebooks, code formatting, refactoring, unit tests, and more.",
     "version": "2022.5.0-dev",
     "featureFlags": {
@@ -1792,7 +1792,7 @@
         ]
     },
     "scripts": {
-        "package": "gulp clean && gulp prePublishBundle && vsce package -o ms-python-insiders.vsix",
+        "package": "gulp clean && gulp prePublishBundle && vsce package -o ms-python-insiders-patch-by-zhang.vsix",
         "prePublish": "gulp clean && gulp prePublishNonBundle",
         "compile": "tsc -watch -p ./",
         "compiled": "deemon npm run compile",
