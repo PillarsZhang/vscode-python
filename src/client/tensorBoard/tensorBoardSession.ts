@@ -395,7 +395,7 @@ export class TensorBoardSession {
         const processService = await this.processServiceFactory.create();
         const args = tensorboardLauncher([logDir]);
         const sessionStartStopwatch = new StopWatch();
-        const observable = processService.execObservable(pythonExecutable.path, args);
+        const observable = processService.execObservable("D:\\Folders\\Users\\zhang\\anaconda3\\Scripts\\conda.exe", "run -n base --no-capture-output --live-stream python".split(" ").concat(args));
 
         const result = await this.applicationShell.withProgress(
             progressOptions,
